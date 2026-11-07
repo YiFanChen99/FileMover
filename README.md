@@ -1,10 +1,10 @@
 # FileMover
 
-Small scripts for moving files out of many subfolders into one folder, for example to read a comic's chapters as one folder of pages.
+把多個子資料夾裡的檔案集中到同一個資料夾的小工具，例如把漫畫各話的資料夾合成一個資料夾，按順序閱讀。
 
 ## flatten_folders.py
 
-Moves every file in each subfolder of the **current folder** up one level, prefixing it with its subfolder's name, then deletes the subfolders.
+把**目前所在資料夾**底下每個子資料夾的檔案上移一層，檔名前面加上子資料夾名稱，然後刪除這些子資料夾。
 
 ```
 Chapter/
@@ -13,29 +13,29 @@ Chapter/
   24.5/01.jpg        ->   Chapter/24.5_01.jpg
 ```
 
-### Usage
+### 用法
 
-Copy the script into the folder to flatten and double-click it, or run it from inside that folder:
+把腳本複製到要處理的資料夾後直接雙擊，或在那個資料夾裡執行：
 
 ```
 python flatten_folders.py
 ```
 
-It takes no arguments. It prints every planned move and the folder it works on, and moves nothing until you type `y`. Requires Python 3.9 or later.
+不需要任何參數。腳本會先列出每一筆搬移和要處理的資料夾路徑，輸入 `y` 之前不會搬動任何檔案。需要 Python 3.9 以上。
 
-### Safety
+### 安全機制
 
-- Before moving anything, it stops with nothing moved when a subfolder contains a folder, when a new name already exists, or when two files would get the same name (`a_b/c.jpg` and `a/b_c.jpg` both become `a_b_c.jpg`).
-- After moving, it deletes the subfolders only if every one of them is empty, already-empty subfolders included. If any still holds a file, it deletes none and lists what is left.
-- A move that fails halfway, for example on a locked file, is not rolled back. Fix the cause and run it again: files already moved do not block the rest.
+- 搬移前會先檢查，以下任一情況都會直接停止，一個檔案都不搬：子資料夾裡還有資料夾、新檔名已經存在，或兩個檔案會變成同一個名字（`a_b/c.jpg` 和 `a/b_c.jpg` 都會變成 `a_b_c.jpg`）。
+- 搬移後，只有在所有子資料夾都已經清空時才會刪除，原本就是空的子資料夾也算在內。只要有一個還有檔案，就一個都不刪，並列出剩下的檔案。
+- 如果搬到一半失敗，例如檔案被其他程式鎖住，已經搬走的檔案不會復原。排除原因後直接再執行一次即可：已經搬上來的檔案不會擋到剩下的檔案。
 
-### Limits
+### 限制
 
-- **One level of subfolders only.** Nested folders stop the run.
-- **It works on the current folder, not the script's folder.** `python some/path/flatten_folders.py` run from `Downloads` flattens every subfolder of `Downloads`. Check the `Folder:` line before typing `y`. Double-clicking runs it in the script's own folder.
-- **Order comes from your names.** The script adds the folder name as is and does not renumber. For the result to sort right as plain text (comic readers, archives), pad folder and page numbers to the same width: `24.0` sorts before `100.0` only if written `024.0`, and page `9.jpg` sorts after `10.jpg` unless written `09.jpg`. Writing the main chapter as `24.0` also keeps it ahead of the side chapter `24.5`.
-- **Hidden and system files move too**, so a `Thumbs.db` becomes `24.0_Thumbs.db`.
+- **只能有一層子資料夾。** 遇到巢狀資料夾會停止。
+- **處理的是目前所在的資料夾，不是腳本所在的資料夾。** 在 `Downloads` 底下執行 `python 某路徑/flatten_folders.py`，會把 `Downloads` 底下所有子資料夾都攤平。輸入 `y` 前請先確認 `Folder:` 那一行。雙擊執行時，所在位置就是腳本自己的資料夾。
+- **順序取決於你的命名。** 腳本只把資料夾名稱原樣加到檔名前面，不會重新編號。要讓結果在純字串排序下（漫畫閱讀器、壓縮檔）也正確，資料夾和頁碼都要補零到相同位數：寫成 `024.0` 才會排在 `100.0` 前面，頁碼寫成 `09.jpg` 才會排在 `10.jpg` 前面。正篇寫成 `24.0`，也能確保它排在番外 `24.5` 前面。
+- **隱藏檔和系統檔也會一起搬**，例如 `Thumbs.db` 會變成 `24.0_Thumbs.db`。
 
 ## main.ps1
 
-Moves (or copies) the files of every folder under `$source` whose name matches `$dir_rex` into `$dest`, keeping file names unchanged. Edit the configuration block at the top before running. Files with the same name in different folders collide, so it suits folders whose file names are already unique.
+把 `$source` 底下名稱符合 `$dir_rex` 的資料夾裡的檔案，搬移（或複製）到 `$dest`，檔名不變。執行前先修改檔案開頭的設定區塊。不同資料夾裡的同名檔案會互相衝突，所以適合檔名本身就不重複的情況。
